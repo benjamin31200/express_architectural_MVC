@@ -26,8 +26,9 @@ usersRouter.get('/:id', (req, res) => {
 });
 
 usersRouter.post('/', (req, res) => {
-  const { email } = req.body;
+  const { email, hashedPassword } = req.body;
   let validationErrors = null;
+  User.hashPassword(hashedPassword),
   User.findByEmail(email)
     .then((existingUserWithEmail) => {
       if (existingUserWithEmail) return Promise.reject('DUPLICATE_EMAIL');

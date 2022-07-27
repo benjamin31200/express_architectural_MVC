@@ -1,5 +1,6 @@
 const express = require("express");
-
+const moviesRouter = require("./routes/movies");
+const usersRouter = require("./routes/users");
 const app = express();
 
 const port = 5000;
@@ -10,10 +11,8 @@ const welcome = (req, res) => {
 
 app.get("/", welcome);
 
-const movieHandlers = require("./movieHandlers");
-
-app.get("/api/movies", movieHandlers.getMovies);
-app.get("/api/movies/:id", movieHandlers.getMovieById);
+app.use("/api/movies", moviesRouter);
+app.use("/api/users", usersRouter);
 
 app.listen(port, (err) => {
   if (err) {
