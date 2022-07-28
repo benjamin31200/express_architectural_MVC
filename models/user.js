@@ -27,7 +27,7 @@ const validate = (data, forCreation = true) => {
     lastname: Joi.string().max(255).presence(presence),
     city: Joi.string().allow(null, '').max(255),
     language: Joi.string().allow(null, '').max(255),
-    hashedPassword: Joi.string().max(255).required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+    hashedPassword: Joi.string().max(255).presence(presence).pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
   }).validate(data, { abortEarly: false }).error;
 };
 

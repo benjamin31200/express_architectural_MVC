@@ -1,6 +1,8 @@
 const checkCredentialRouter = require("express").Router();
 const { verifyPassword, hashPassword } = require("../models/user");
+const User = require("../models/user");
 const checkCredential = require("../models/checkCredentials");
+const { calculateToken } = require("../helpers/users");
 
 checkCredentialRouter.get("/", (req, res) => {
   const { email, hashedPassword } = req.query;
@@ -21,6 +23,9 @@ checkCredentialRouter.get("/", (req, res) => {
                   .status(401)
                   .send("le mot de passe n'est pas valide !");
               } else {
+                const token = calculateToken(email);
+                User.update(users[0].id, { token: token });
+                res.cookie('user_token', token);
                 res.status(200).json(users);
               }
             }
@@ -29,7 +34,7 @@ checkCredentialRouter.get("/", (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send("Email ou mot de passe incorrect");
+      res.status(500).send("Erreur dans la requête.");
     });
 });
 

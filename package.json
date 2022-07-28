@@ -21,6 +21,7 @@
   "homepage": "https://github.com/WildCodeSchool/Express-Quests#readme",
   "dependencies": {
     "argon2": "^0.28.7",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "joi": "^17.6.0",

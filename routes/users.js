@@ -1,6 +1,6 @@
 const usersRouter = require("express").Router();
-const { hash } = require("argon2");
 const User = require("../models/user");
+const { calculateToken } = require("../helpers/users");
 
 usersRouter.get("/", (req, res) => {
   const { language } = req.query;
@@ -29,6 +29,8 @@ usersRouter.get("/:id", (req, res) => {
 usersRouter.post("/", (req, res) => {
   let { hashedPassword, ...data } = req.body;
   const { email } = data;
+  const token = calculateToken(email);
+  console.log(token);
   let validationErrors = null;
   User.findByEmail(email)
     .then((existingUserWithEmail) => {
@@ -36,11 +38,10 @@ usersRouter.post("/", (req, res) => {
       validationErrors = User.validate(req.body);
       if (validationErrors) return Promise.reject("INVALID_DATA");
       User.hashPassword(hashedPassword).then((hashedPassword) => {
-        const newPass = {...data, hashedPassword};
-        User.create(newPass)
-        .then((createdUser) => {
+        const newPass = { ...data, hashedPassword, token };
+        User.create(newPass).then((createdUser) => {
           res.status(201).json(createdUser);
-        })
+        });
       });
     })
     .catch((err) => {
@@ -62,11 +63,17 @@ usersRouter.put("/:id", (req, res) => {
   ])
     .then(([user, otherUserWithEmail]) => {
       existingUser = user;
+      console.log(existingUser);
+      const token = { token: calculateToken(existingUser.email) };
       if (!existingUser) return Promise.reject("RECORD_NOT_FOUND");
       if (otherUserWithEmail) return Promise.reject("DUPLICATE_EMAIL");
       validationErrors = User.validate(req.body, false);
       if (validationErrors) return Promise.reject("INVALID_DATA");
-      return User.update(req.params.id, req.body);
+      if (existingUser.token === null) {
+        User.update(req.params.id, token);
+      }  else {
+        User.update(req.params.id, req.body);
+      }
     })
     .then(() => {
       res.status(200).json({ ...existingUser, ...req.body });
