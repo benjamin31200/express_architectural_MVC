@@ -29,7 +29,6 @@ usersRouter.get("/:id", (req, res) => {
 usersRouter.post("/", (req, res) => {
   let { hashedPassword, ...data } = req.body;
   const { email } = data;
-  const token = calculateToken(email);
   let validationErrors = null;
   User.findByEmail(email)
     .then((existingUserWithEmail) => {
@@ -37,9 +36,9 @@ usersRouter.post("/", (req, res) => {
       validationErrors = User.validate(req.body);
       if (validationErrors) return Promise.reject("INVALID_DATA");
       User.hashPassword(hashedPassword).then((hashedPassword) => {
-        const newPass = { ...data, hashedPassword, token };
+        const newPass = { ...data, hashedPassword};
         User.create(newPass).then((createdUser) => {
-          res.cookie('user_token', token);
+          res.cookie('user_token', calculateToken(createdUser.email));
           res.status(201).json(createdUser);
         });
       });
@@ -63,20 +62,12 @@ usersRouter.put("/:id", (req, res) => {
   ])
     .then(([user, otherUserWithEmail]) => {
       existingUser = user;
-      console.log(existingUser);
-      const token = { token: calculateToken(existingUser.email) };
       if (!existingUser) return Promise.reject("RECORD_NOT_FOUND");
       if (otherUserWithEmail) return Promise.reject("DUPLICATE_EMAIL");
       validationErrors = User.validate(req.body, false);
       if (validationErrors) return Promise.reject("INVALID_DATA");
-      if (existingUser.token === null) 
-        User.update(req.params.id, token);
-        if (existingUser.token !== null) {
-          res.cookie('user_token', token);
-      }  else {
-        User.update(req.params.id, req.body);
-
-      }
+        User.update(req.params.id, req.body); 
+        res.cookie('user_token', calculateToken(user.email));
     })
     .then(() => {
       res.status(200).json({ ...existingUser, ...req.body });

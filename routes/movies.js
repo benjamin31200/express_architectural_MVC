@@ -1,30 +1,34 @@
 const moviesRouter = require("express").Router();
 const Movie = require("../models/movie");
 const User = require("../models/user");
+const { decodeToken } = require("../helpers/users");
 
 moviesRouter.get("/", (req, res) => {
   const { max_duration, color } = req.query;
-  const cookie = req.cookies.user_token;
-  User.findByToken(cookie).then((userId) => {
-    if (userId === undefined || cookie === undefined) {
-      Movie.findMany({ filters: { max_duration, color } })
-        .then((movies) => {
-          res.json(movies);
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).send("Error retrieving movies from database");
-        });
-    } else {
-      Movie.findByUserId(userId.id).then((movieByUser) => {
-        res.json(movieByUser);
+  if (max_duration || color) {
+    Movie.findMany({ filters: { max_duration, color } })
+      .then((movies) => {
+        res.json(movies);
       })
       .catch((err) => {
         console.log(err);
         res.status(500).send("Error retrieving movies from database");
       });
-    }
-  });
+  } else {
+    const cookie = req.cookies.user_token;
+    const decode = decodeToken(cookie);
+    Movie.findByUserId(decode.email[1])
+      .then((movies) => {
+        if (movies) {
+          res.json(movies);
+        } else {
+          res.status(404).send("Movies for this user not found");
+        }
+      })
+      .catch((err) => {
+        res.status(500).send("Error retrieving movie from database");
+      });
+  }
 });
 
 moviesRouter.get("/", async (req, res) => {
@@ -55,27 +59,25 @@ moviesRouter.get("/:id", (req, res) => {
 moviesRouter.post("/", (req, res) => {
   const error = Movie.validate(req.body);
   const cookie = req.cookies.user_token;
-  User.findByToken(cookie).then((userId) => {
-    if (userId === undefined) {
-      return res
-        .status(404)
-        .send("Désolé, l'enregistrement n'est pas possible");
+  const decode = decodeToken(cookie);
+  console.log(decode);
+  if (decode === undefined) {
+    return res.status(404).send("Désolé, l'enregistrement n'est pas possible");
+  } else {
+    if (error) {
+      res.status(422).json({ validationErrors: error.details });
     } else {
-      if (error) {
-        res.status(422).json({ validationErrors: error.details });
-      } else {
-        const user_id = userId.id;
-        Movie.create({ ...req.body, user_id })
-          .then((createdMovie) => {
-            res.status(201).json(createdMovie);
-          })
-          .catch((err) => {
-            console.error(err);
-            res.status(500).send("Error saving the movie");
-          });
-      }
+      const user_id = decode.email[1];
+      Movie.create({ ...req.body, user_id })
+        .then((createdMovie) => {
+          res.status(201).json(createdMovie);
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).send("Error saving the movie");
+        });
     }
-  });
+  }
 });
 
 moviesRouter.put("/:id", (req, res) => {

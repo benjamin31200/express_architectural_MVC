@@ -1,9 +1,17 @@
-const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const jwtDecode = require('jwt-decode');
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const calculateToken = (userEmail = "") => {
-    return crypto.createHash('md5').update(userEmail + PRIVATE_KEY).digest("hex");
+    return jwt.sign({email: userEmail}, PRIVATE_KEY)
 }
 
-module.exports = { calculateToken };
+const decodeToken = (token) => {
+    return jwtDecode(token);
+}
+
+module.exports = { 
+    calculateToken,
+    decodeToken
+};
