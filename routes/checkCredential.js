@@ -4,7 +4,7 @@ const User = require("../models/user");
 const checkCredential = require("../models/checkCredentials");
 const { calculateToken } = require("../helpers/users");
 
-checkCredentialRouter.get("/", (req, res) => {
+checkCredentialRouter.post("/", (req, res) => {
   const { email, hashedPassword } = req.query;
   hashPassword(hashedPassword)
     .then((hashPass) => {

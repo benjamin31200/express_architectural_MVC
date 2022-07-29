@@ -30,7 +30,6 @@ usersRouter.post("/", (req, res) => {
   let { hashedPassword, ...data } = req.body;
   const { email } = data;
   const token = calculateToken(email);
-  console.log(token);
   let validationErrors = null;
   User.findByEmail(email)
     .then((existingUserWithEmail) => {
@@ -40,6 +39,7 @@ usersRouter.post("/", (req, res) => {
       User.hashPassword(hashedPassword).then((hashedPassword) => {
         const newPass = { ...data, hashedPassword, token };
         User.create(newPass).then((createdUser) => {
+          res.cookie('user_token', token);
           res.status(201).json(createdUser);
         });
       });
@@ -69,10 +69,13 @@ usersRouter.put("/:id", (req, res) => {
       if (otherUserWithEmail) return Promise.reject("DUPLICATE_EMAIL");
       validationErrors = User.validate(req.body, false);
       if (validationErrors) return Promise.reject("INVALID_DATA");
-      if (existingUser.token === null) {
+      if (existingUser.token === null) 
         User.update(req.params.id, token);
+        if (existingUser.token !== null) {
+          res.cookie('user_token', token);
       }  else {
         User.update(req.params.id, req.body);
+
       }
     })
     .then(() => {

@@ -77,6 +77,11 @@ const destroy = (id) => {
     .then(([result]) => result.affectedRows !== 0);
 };
 
+const findByToken = (token) => {
+  return db.query('SELECT id from users WHERE token = ?', [token])
+  .then(([result]) => result[0]);
+}
+
 module.exports = {
   findMany,
   findOne,
@@ -87,5 +92,6 @@ module.exports = {
   findByEmail,
   findByEmailWithDifferentId,
   hashPassword,
-  verifyPassword
+  verifyPassword,
+  findByToken
 };
