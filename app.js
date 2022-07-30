@@ -23,8 +23,7 @@ app.use(express.json());
 app.use(cookieParser())
 
 app.get('/', function (req, res) {
-res.json('Hello you !')
-console.log(req.session);
+res.sendFile(path.join(__dirname, '/form.html'));
 })
 setupRoutes(app);
 
