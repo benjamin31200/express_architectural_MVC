@@ -1,7 +1,7 @@
-const moviesRouter = require("express").Router();
-const Movie = require("../models/movie");
-const User = require("../models/user");
-const { decodeToken } = require("../helpers/users");
+import Router from "express-promise-router";
+export const moviesRouter = Router();
+import Movie from "../models/movie.js";
+import { decodeToken} from "../helpers/users.js";
 
 moviesRouter.get("/", (req, res) => {
   const { max_duration, color } = req.query;
@@ -116,4 +116,4 @@ moviesRouter.delete("/:id", (req, res) => {
     });
 });
 
-module.exports = moviesRouter;
+export default moviesRouter;

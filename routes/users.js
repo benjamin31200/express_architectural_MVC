@@ -1,10 +1,12 @@
-const usersRouter = require("express").Router();
-const User = require("../models/user");
-const { calculateToken } = require("../helpers/users");
+import Router from "express-promise-router";
+export const usersRouter = Router();
+import User from "../models/user.js";
+import { findMany } from "../models/user.js";
+import { calculateToken} from "../helpers/users.js";
 
-usersRouter.get("/", (req, res) => {
+usersRouter.post("/", (req, res) => {
   const { language } = req.query;
-  User.findMany({ filters: { language } })
+  findMany({ filters: { language } })
     .then((results) => {
       res.json(results);
     })
@@ -26,7 +28,7 @@ usersRouter.get("/:id", (req, res) => {
     });
 });
 
-usersRouter.post("/", (req, res) => {
+usersRouter.post("/pass", (req, res) => {
   let { hashedPassword, ...data } = req.body;
   const { email } = data;
   let validationErrors = null;
@@ -96,4 +98,4 @@ usersRouter.delete("/:id", (req, res) => {
     });
 });
 
-module.exports = usersRouter;
+export default usersRouter;

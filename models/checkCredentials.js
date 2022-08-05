@@ -1,5 +1,4 @@
-const connection = require("../db-config");
-const Joi = require("joi");
+import { connection } from "../db-config.js";
 
 const db = connection.promise();
 
@@ -16,6 +15,6 @@ const verifyUser = ({ filters: { email, hashedPassword } }) => {
   return db.query(sql, sqlValues).then(([results]) => results);
 };
 
-module.exports = {
+export default {
   verifyUser
 };

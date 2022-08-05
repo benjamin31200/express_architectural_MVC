@@ -1,22 +1,23 @@
-const connection = require("../db-config");
-const Joi = require("joi");
+import { connection } from "../db-config.js";
+import pkg from 'joi';
+const { object, string, number, boolean } = pkg;
 
 const db = connection.promise();
 
 const validate = (data, forCreation = true) => {
   const presence = forCreation ? "required" : "optional";
-  return Joi.object({
-    title: Joi.string().max(255).presence(presence),
-    director: Joi.string().max(255).presence(presence),
-    year: Joi.number().integer().min(1888).presence(presence),
-    color: Joi.boolean().presence(presence),
-    duration: Joi.number().integer().min(1).presence(presence),
+  return object({
+    title: string().max(255).presence(presence),
+    director: string().max(255).presence(presence),
+    year: number().integer().min(1888).presence(presence),
+    color: boolean().presence(presence),
+    duration: number().integer().min(1).presence(presence),
   }).validate(data, { abortEarly: false }).error;
 };
 
 const findByUserId = (userId) => {
   return db
-    .query("SELECT * FROM movies WHERE user_id = ?", [userId])
+    .query("SELECT * FROM users WHERE id = ?", [userId])
     .then(([results]) => results);
 };
 
@@ -60,7 +61,7 @@ const destroy = (id) => {
     .then(([result]) => result.affectedRows !== 0);
 };
 
-module.exports = {
+export default {
   findMany,
   findOne,
   validate,

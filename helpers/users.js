@@ -1,17 +1,13 @@
-const jwt = require('jsonwebtoken');
-const jwtDecode = require('jwt-decode');
+import pkg from 'jsonwebtoken';
+const { sign } = pkg;
+import jwtDecode from 'jwt-decode';
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-const calculateToken = (userEmail = "") => {
-    return jwt.sign({email: userEmail}, PRIVATE_KEY)
+export const calculateToken = (userEmail = "") => {
+    return sign({email: userEmail}, PRIVATE_KEY)
 }
 
-const decodeToken = (token) => {
+export const decodeToken = (token) => {
     return jwtDecode(token);
 }
-
-module.exports = { 
-    calculateToken,
-    decodeToken
-};

@@ -1,4 +1,5 @@
-const sessionInRouter = require("express").Router();
+import Router from "express-promise-router";
+export const sessionInRouter = Router();
 
   sessionInRouter.get('/', function(req, res) {
     if (req.session) {
@@ -8,4 +9,4 @@ const sessionInRouter = require("express").Router();
     }
   });
 
-module.exports = sessionInRouter;
+export default sessionInRouter;

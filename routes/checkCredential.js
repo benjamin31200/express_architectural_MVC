@@ -1,8 +1,8 @@
-const checkCredentialRouter = require("express").Router();
-const { verifyPassword, hashPassword } = require("../models/user");
-const User = require("../models/user");
-const checkCredential = require("../models/checkCredentials");
-const { calculateToken, decodeToken } = require("../helpers/users");
+import Router from "express-promise-router";
+export const checkCredentialRouter = Router();
+import { verifyPassword, hashPassword } from "../models/user.js";
+import checkCredential from "../models/checkCredentials.js";
+import { calculateToken} from "../helpers/users.js";
 
 checkCredentialRouter.post("/", (req, res) => {
   const { email, hashedPassword } = req.query;
@@ -38,4 +38,4 @@ checkCredentialRouter.post("/", (req, res) => {
     });
 });
 
-module.exports = checkCredentialRouter;
+export default checkCredentialRouter;

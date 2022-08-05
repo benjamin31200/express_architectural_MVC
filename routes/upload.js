@@ -1,10 +1,11 @@
-const uploadRouter = require("express").Router();
-const multer = require('multer');
+import Router from "express-promise-router";
+export const uploadRouter = Router();
+import multer from 'multer';
 const upload = multer({ dest: 'tmp/' });
-const fs = require('fs');
+import { rename } from 'fs';
 
 uploadRouter.post('/', upload.single('monfichier'), function (req, res, next) {
-    fs.rename(req.file.path, 'public/images/' + req.file.originalname, function(err){
+    rename(req.file.path, 'public/images/' + req.file.originalname, function(err){
       if (err) {
           res.send('problème durant le déplacement');
       } else {
@@ -13,4 +14,4 @@ uploadRouter.post('/', upload.single('monfichier'), function (req, res, next) {
     });
   })
 
-module.exports = uploadRouter;
+export default uploadRouter;
